@@ -1,7 +1,31 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET All lists. */
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     List:
+ *       type: object
+ *       required:
+ *         - id
+ *         - title
+ *         - created_at
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated id for the to-do list.
+ *         title:
+ *           type: string
+ *           description: The title of the to-do list
+ *         created_at:
+ *           type: string
+ *           description: Time this to-do list was created
+ *         completed_at:
+ *           type: string
+ *           description: Time this to-do list was marked as completed
+ */
+
 router.get('/', function (req, res, next) {
     res.send('respond with a resource');
 });
