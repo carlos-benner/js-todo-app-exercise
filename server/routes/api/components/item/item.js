@@ -30,9 +30,9 @@ const { nanoid } = require('nanoid');
  *           type: string
  *           description: Time this to-do item was marked as completed
  *       example:
- *          id: 1
- *          list_id: 1
- *          label: Finish this to-do project
+ *          id: '1'
+ *          list_id: '1'
+ *          label: 'Finish this to-do project'
  *          created_at: ''
  */
 
@@ -143,7 +143,7 @@ router.get('/list/:id', function (req, res, next) {
  *                          $ref: '#/components/schemas/Item'
  *          responses:
  *              200:
- *                  description: Books successfully created
+ *                  description: Item successfully created
  *                  content:
  *                      application/json:
  *                          schema:
