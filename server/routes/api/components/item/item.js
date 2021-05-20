@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { nanoid } = require('nanoid');
 
-//Define swagger schema for item
+//#region swagger schema
 /**
  * @swagger
  * components:
@@ -35,14 +35,18 @@ const { nanoid } = require('nanoid');
  *          label: 'Finish this to-do project'
  *          created_at: ''
  */
+//#endregion
 
+//#region swagger Todo Item tag
 /**
  * @swagger
  * tags:
  *  name: To-do Items
  *  description: The to-do items api
  */
+//#endregion
 
+//#region swagger GET item listing
 /**
  * @swagger
  *  /api/items:
@@ -59,13 +63,14 @@ const { nanoid } = require('nanoid');
  *                              items:
  *                                  $ref: '#/components/schemas/Item'
  */
+//#endregion
 
-/* GET item listing. */
 router.get('/', function (req, res, next) {
     const items = req.app.db.get('items');
     res.json(items);
 });
 
+//#region swagger GET item by id
 /**
  * @swagger
  *  /api/items/{id}:
@@ -90,12 +95,14 @@ router.get('/', function (req, res, next) {
  *                  description: Item not found
  */
 
-/* GET item by id. */
+//#endregion
+
 router.get('/:id', function (req, res, next) {
     const item = req.app.db.get('items').find({ id: req.params.id }).value();
     res.status(item ? 200 : 404).json(item);
 });
 
+//#region Swagger GET item by list id
 /**
  * @swagger
  *  /api/items/list{id}:
@@ -120,7 +127,8 @@ router.get('/:id', function (req, res, next) {
  *                                  $ref: '#/components/schemas/Item'
  */
 
-/* GET items by list. */
+//#endregion
+
 router.get('/list/:id', function (req, res, next) {
     const items = req.app.db
         .get('items')
@@ -129,6 +137,7 @@ router.get('/list/:id', function (req, res, next) {
     res.json(items);
 });
 
+//#region swagger POST Create a new item
 /**
  * @swagger
  *  /api/items:
@@ -152,21 +161,32 @@ router.get('/list/:id', function (req, res, next) {
  *                  description: Some server error
  */
 
-/* POST item to list */
+//#endregion
+
 router.post('/', function (req, res, next) {
     try {
-        const item = {
-            id: nanoid(req.app.get('db-id-length')),
+        req.body.id = undefined;
+        let item = {
             ...req.body,
         };
-        req.app.db.get('items').push(item).write();
-
-        return res.json(item);
+        item.id = nanoid(req.app.get('db-id-length'));
+        item.created_at = new Date().toISOString();
+        if (req.app.db.get('lists').find({ id: req.body.list_id }).value()) {
+            if (item.id && item.label && item.created_at && item.list_id) {
+                req.app.db.get('items').push(item).write();
+                return res.json(req.app.db.get('items').find({ id: item.id }));
+            } else {
+                return res.status(400).json();
+            }
+        } else {
+            return res.status(400).json();
+        }
     } catch (err) {
         return res.status(500).send(err);
     }
 });
 
+//#region swagger PUT Update item
 /**
  * @swagger
  *  /api/items/{id}:
@@ -199,7 +219,8 @@ router.post('/', function (req, res, next) {
  *                  description: Some server error
  */
 
-/* PUT Edit item */
+//#endregion
+
 router.put('/:id', function (req, res, next) {
     try {
         const item = req.app.db.get('items').find({ id: req.params.id });
@@ -212,6 +233,7 @@ router.put('/:id', function (req, res, next) {
     }
 });
 
+//#region swagger DELETE remove item
 /**
  * @swagger
  *  /api/items/{id}:
@@ -234,7 +256,8 @@ router.put('/:id', function (req, res, next) {
  *                  description: Some server error
  */
 
-/* DELETE item */
+//#endregion
+
 router.delete('/:id', function (req, res, next) {
     try {
         const item = req.app.db
